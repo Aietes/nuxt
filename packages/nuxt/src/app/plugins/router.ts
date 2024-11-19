@@ -33,7 +33,7 @@ interface Route {
   /** Merged `meta` properties from all of the matched route records. */
   meta: Record<string, any>
   /** compatibility type for vue-router */
-  matched: never[]
+  matched: string[]
 }
 
 function getRouteFromPath (fullPath: string | Partial<Route>) {
@@ -46,6 +46,10 @@ function getRouteFromPath (fullPath: string | Partial<Route>) {
   }
 
   const url = new URL(fullPath.toString(), import.meta.client ? window.location.href : 'http://localhost')
+  const pathSegments = url.pathname.split('/').filter(Boolean)
+  const matchedRoutes = pathSegments.map((_, index) => ({
+    path: '/' + pathSegments.slice(0, index + 1).join('/'),
+  }))
   return {
     path: url.pathname,
     fullPath,
@@ -54,7 +58,7 @@ function getRouteFromPath (fullPath: string | Partial<Route>) {
     // stub properties for compat with vue-router
     params: {},
     name: undefined,
-    matched: [],
+    matched: matchedRoutes,
     redirectedFrom: undefined,
     meta: {},
     href: fullPath,
